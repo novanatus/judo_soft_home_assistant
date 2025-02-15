@@ -2,15 +2,18 @@
   "config": {
     "step": {
       "user": {
-        "title": "Judo iSoft hinzufügen",
-        "description": "Gib die IP-Adresse deiner Judo-Wasserenthärtungsanlage ein.",
+        "title": "Judo iSoft SAFE+ einrichten",
+        "description": "Gib die IP-Adresse, den Benutzernamen und das Passwort deiner Judo-Anlage ein.",
         "data": {
-          "ip": "IP-Adresse des Geräts"
+          "ip": "IP-Adresse des Geräts",
+          "username": "Benutzername",
+          "password": "Passwort"
         }
       }
     },
     "error": {
-      "invalid_ip": "Ungültige IP-Adresse. Bitte überprüfe deine Eingabe."
+      "invalid_ip": "Ungültige IP-Adresse",
+      "invalid_login": "Benutzername oder Passwort falsch"
     }
   },
   "options": {

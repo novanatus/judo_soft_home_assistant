@@ -12,7 +12,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
     
     async_add_entities([
         JudoSensor(api, "Wasserhärte", "get_wasserhaerte", "°dH"),
-        JudoSensor(api, "Salzstand", "get_salzstand", "g")
+        JudoSensor(api, "Salzstand", "get_salzstand", "g"),
+        JudoSensor(api, "Gesamtwassermenge", "get_geraet_info", "m³"),
     ], update_before_add=True)
 
 class JudoSensor(Entity):
@@ -24,7 +25,6 @@ class JudoSensor(Entity):
         self._state = None
 
     async def async_update(self):
-        """Asynchroner Sensor-Update."""
         self._state = await getattr(self._api, self._method)()
 
     @property

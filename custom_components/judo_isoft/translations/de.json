@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Judo iSoft hinzufügen",
+        "description": "Gib die IP-Adresse deiner Judo-Wasserenthärtungsanlage ein.",
+        "data": {
+          "ip": "IP-Adresse des Geräts"
+        }
+      }
+    },
+    "error": {
+      "invalid_ip": "Ungültige IP-Adresse. Bitte überprüfe deine Eingabe."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Optionen",
+        "description": "Passe die Einstellungen für die Judo iSoft SAFE+ Integration an.",
+        "data": {
+          "update_interval": "Aktualisierungsintervall (in Sekunden)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "wasserhaerte": "Wasserhärte",
+      "salzstand": "Salzstand",
+      "gesamtwassermenge": "Gesamtwassermenge",
+      "weichwassermenge": "Weichwassermenge"
+    },
+    "switch": {
+      "leckageschutz": "Leckageschutz",
+      "regeneration": "Regeneration starten",
+      "urlaubsmodus": "Urlaubsmodus"
+    }
+  }
+}

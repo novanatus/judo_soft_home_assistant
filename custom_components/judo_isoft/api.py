@@ -1,39 +1,71 @@
-import requests
+import aiohttp
+import asyncio
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 class JudoAPI:
     def __init__(self, ip, username, password):
         self.base_url = f"http://{ip}/api/rest"
-        self.auth = (username, password)  # Auth-Daten speichern
+        self.auth = aiohttp.BasicAuth(username, password)
 
-    def get_data(self, endpoint):
-        """Generische Methode zum Abrufen von Daten mit Authentifizierung."""
-        response = requests.get(f"{self.base_url}/{endpoint}", auth=self.auth)
-        if response.status_code == 200:
-            return response.json().get("data")
-        return None
+    async def get_data(self, endpoint):
+        """Asynchroner API-Request mit aiohttp."""
+        url = f"{self.base_url}/{endpoint}"
+        _LOGGER.info(f"Judo API: Sende Anfrage an {url}")
 
-    def set_data(self, endpoint, value):
-        """Generische Methode zum Setzen von Daten mit Authentifizierung."""
+        async with aiohttp.ClientSession(auth=self.auth) as session:
+            try:
+                async with session.get(url) as response:
+                    if response.status != 200:
+                        _LOGGER.error(f"API-Fehler: {response.status} - {await response.text()}")
+                        return None
+                    data = await response.json()
+                    return data.get("data")
+            except Exception as e:
+                _LOGGER.error(f"Fehler beim API-Request: {e}")
+                return None
+
+    async def set_data(self, endpoint, value):
+        """Asynchrones API-Update mit aiohttp."""
+        url = f"{self.base_url}/{endpoint}"
         payload = {"data": value}
-        response = requests.post(f"{self.base_url}/{endpoint}", json=payload, auth=self.auth)
-        return response.status_code == 200
+        _LOGGER.info(f"Judo API: Sende POST an {url} mit Payload {payload}")
 
-    def get_wasserhaerte(self):
-        return int(self.get_data("5100")[:2], 16)
+        async with aiohttp.ClientSession(auth=self.auth) as session:
+            try:
+                async with session.post(url, json=payload) as response:
+                    if response.status != 200:
+                        _LOGGER.error(f"API-Fehler: {response.status} - {await response.text()}")
+                        return False
+                    return True
+            except Exception as e:
+                _LOGGER.error(f"Fehler beim API-Update: {e}")
+                return False
 
-    def get_salzstand(self):
-        data = self.get_data("5600")
+    async def get_wasserhaerte(self):
+        """Ruft die Wasserhärte ab."""
+        data = await self.get_data("5100")
+        return int(data[:2], 16) if data else None
+
+    async def get_salzstand(self):
+        """Ruft den Salzstand ab."""
+        data = await self.get_data("5600")
         return int(data[:4], 16) if data else None
 
-    def start_regeneration(self):
-        return self.set_data("350000", "")
+    async def start_regeneration(self):
+        """Startet die Regeneration."""
+        return await self.set_data("350000", "")
 
-    def set_wasserhaerte(self, haerte):
+    async def set_wasserhaerte(self, haerte):
+        """Setzt die gewünschte Wasserhärte."""
         hex_value = f"{haerte:02X}"
-        return self.set_data("3000", hex_value)
+        return await self.set_data("3000", hex_value)
 
-    def set_leckageschutz(self, status):
-        return self.set_data("3C00" if status else "3D00", "")
+    async def set_leckageschutz(self, status):
+        """Schließt oder öffnet den Leckageschutz."""
+        return await self.set_data("3C00" if status else "3D00", "")
 
-    def set_urlaubsmodus(self, status):
-        return self.set_data("4100", "01" if status else "00")
+    async def set_urlaubsmodus(self, status):
+        """Aktiviert oder deaktiviert den Urlaubsmodus."""
+        return await self.set_data("4100", "01" if status else "00")

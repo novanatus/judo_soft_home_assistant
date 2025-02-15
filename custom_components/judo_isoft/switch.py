@@ -3,7 +3,11 @@ from .api import JudoAPI
 from .const import DOMAIN
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    api = JudoAPI(entry.data["ip"])
+    """Setzt die Schalter für Home Assistant auf."""
+    config = hass.data[DOMAIN][entry.entry_id]  # 🔥 Konfigurationsdaten holen
+    
+    api = JudoAPI(config["ip"], config["username"], config["password"])  # 🔥 Fix: Jetzt mit allen 3 Parametern
+    
     async_add_entities([
         JudoLeckageschutz(api),
         JudoRegeneration(api),

@@ -1,9 +1,12 @@
 from homeassistant.helpers.entity import Entity
 from .api import JudoAPI
 from .const import DOMAIN
+import logging
+
+_LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Setzt die Sensoren basierend auf der Konfiguration."""
+    """Setzt die Sensoren asynchron auf."""
     config = hass.data[DOMAIN][entry.entry_id]
     api = JudoAPI(config["ip"], config["username"], config["password"])
     
@@ -21,7 +24,8 @@ class JudoSensor(Entity):
         self._state = None
 
     async def async_update(self):
-        self._state = getattr(self._api, self._method)()
+        """Asynchroner Sensor-Update."""
+        self._state = await getattr(self._api, self._method)()
 
     @property
     def name(self):

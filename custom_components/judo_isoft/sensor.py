@@ -3,11 +3,13 @@ from .api import JudoAPI
 from .const import DOMAIN
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    api = JudoAPI(entry.data["ip"])
+    """Setzt die Sensoren basierend auf der Konfiguration."""
+    config = hass.data[DOMAIN][entry.entry_id]
+    api = JudoAPI(config["ip"], config["username"], config["password"])
+    
     async_add_entities([
         JudoSensor(api, "Wasserhärte", "get_wasserhaerte", "°dH"),
-        JudoSensor(api, "Salzstand", "get_salzstand", "g"),
-        JudoSensor(api, "Gesamtwassermenge", "get_geraet_info", "m³"),
+        JudoSensor(api, "Salzstand", "get_salzstand", "g")
     ], update_before_add=True)
 
 class JudoSensor(Entity):

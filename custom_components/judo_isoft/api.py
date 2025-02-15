@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 import logging
+from datetime import datetime
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,3 +70,35 @@ class JudoAPI:
     async def set_urlaubsmodus(self, status):
         """Aktiviert oder deaktiviert den Urlaubsmodus."""
         return await self.set_data("4100", "01" if status else "00")
+
+    # Neue Methoden für Statistiken mit dynamischen Endpunkten
+
+    async def get_tagesstatistik(self):
+        """Ruft die Tagesstatistik ab (vom aktuellen Tag)."""
+        today = datetime.now().strftime("%d%m%Y")  # Format für das heutige Datum (TTMMYYYY)
+        endpoint = f"FB{today}"  # Beispiel: FB04022025 für den 04.02.2025
+        data = await self.get_data(endpoint)
+        return data if data else None
+
+    async def get_wochenstatistik(self):
+        """Ruft die Wochenstatistik ab (von der aktuellen Kalenderwoche)."""
+        week = datetime.now().isocalendar()[1]  # Ermittelt die aktuelle Kalenderwoche
+        year = datetime.now().year  # Ermittelt das aktuelle Jahr
+        endpoint = f"FC{year}{week:02d}"  # Beispiel: FC202503 für die 3. Woche 2025
+        data = await self.get_data(endpoint)
+        return data if data else None
+
+    async def get_monatsstatistik(self):
+        """Ruft die Monatsstatistik ab (vom aktuellen Monat)."""
+        month = datetime.now().month  # Ermittelt den aktuellen Monat
+        year = datetime.now().year  # Ermittelt das aktuelle Jahr
+        endpoint = f"FD{year}{month:02d}"  # Beispiel: FD202502 für Februar 2025
+        data = await self.get_data(endpoint)
+        return data if data else None
+
+    async def get_jahresstatistik(self):
+        """Ruft die Jahresstatistik ab (vom aktuellen Jahr)."""
+        year = datetime.now().year  # Ermittelt das aktuelle Jahr
+        endpoint = f"FE{year}"  # Beispiel: FE2025 für das Jahr 2025
+        data = await self.get_data(endpoint)
+        return data if data else None

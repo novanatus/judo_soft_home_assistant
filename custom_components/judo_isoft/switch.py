@@ -4,9 +4,8 @@ from .const import DOMAIN
 
 async def async_setup_entry(hass, entry, async_add_entities):
     """Setzt die Schalter für Home Assistant auf."""
-    config = hass.data[DOMAIN][entry.entry_id]  # 🔥 Konfigurationsdaten holen
-    
-    api = JudoAPI(config["ip"], config["username"], config["password"])  # 🔥 Fix: Jetzt mit allen 3 Parametern
+    config = hass.data[DOMAIN][entry.entry_id]  
+    api = JudoAPI(config["ip"], config["username"], config["password"])  
     
     async_add_entities([
         JudoLeckageschutz(api),
@@ -20,12 +19,12 @@ class JudoLeckageschutz(ToggleEntity):
         self._state = False
 
     async def async_turn_on(self):
-        if self._api.set_leckageschutz(True):
+        if await self._api.set_leckageschutz(True):  # ✅ FIX: `await` hinzugefügt
             self._state = True
             self.schedule_update_ha_state()
 
     async def async_turn_off(self):
-        if self._api.set_leckageschutz(False):
+        if await self._api.set_leckageschutz(False):  # ✅ FIX: `await` hinzugefügt
             self._state = False
             self.schedule_update_ha_state()
 
@@ -43,7 +42,7 @@ class JudoRegeneration(ToggleEntity):
         self._state = False
 
     async def async_turn_on(self):
-        if self._api.start_regeneration():
+        if await self._api.start_regeneration():  # ✅ FIX: `await` hinzugefügt
             self._state = True
             self.schedule_update_ha_state()
 
@@ -65,12 +64,12 @@ class JudoUrlaubsmodus(ToggleEntity):
         self._state = False
 
     async def async_turn_on(self):
-        if self._api.set_urlaubsmodus(True):
+        if await self._api.set_urlaubsmodus(True):  # ✅ FIX: `await` hinzugefügt
             self._state = True
             self.schedule_update_ha_state()
 
     async def async_turn_off(self):
-        if self._api.set_urlaubsmodus(False):
+        if await self._api.set_urlaubsmodus(False):  # ✅ FIX: `await` hinzugefügt
             self._state = False
             self.schedule_update_ha_state()
 

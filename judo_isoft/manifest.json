@@ -1,0 +1,13 @@
+{
+  "domain": "judo_isoft",
+  "name": "Judo iSoft",
+  "version": "1.0",
+  "config_flow": true,
+  "requirements": [],
+  "codeowners": ["@novanatus"],
+  "iot_class": "local_polling"
+  "documentation": "https://www.home-assistant.io/integrations/judo_isoft/",
+  "issue_tracker": "https://github.com/deinGithubUsername/judo_isoft/issues",
+  "logo": "custom_components/judo_isoft/logo.png",
+  "icon": "custom_components/judo_isoft/icon.png"
+}

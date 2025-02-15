@@ -8,11 +8,16 @@ class JudoConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
         errors = {}
+        
         if user_input is not None:
             return self.async_create_entry(title="Judo iSoft SAFE+", data=user_input)
 
         return self.async_show_form(
             step_id="user",
-            data_schema=vol.Schema({vol.Required("ip"): str}),
+            data_schema=vol.Schema({
+                vol.Required("ip"): str,
+                vol.Required("username"): str,
+                vol.Required("password"): str
+            }),
             errors=errors,
         )

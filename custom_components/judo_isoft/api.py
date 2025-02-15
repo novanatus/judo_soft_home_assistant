@@ -1,18 +1,21 @@
 import requests
 
 class JudoAPI:
-    def __init__(self, ip):
+    def __init__(self, ip, username, password):
         self.base_url = f"http://{ip}/api/rest"
+        self.auth = (username, password)  # Auth-Daten speichern
 
     def get_data(self, endpoint):
-        response = requests.get(f"{self.base_url}/{endpoint}")
+        """Generische Methode zum Abrufen von Daten mit Authentifizierung."""
+        response = requests.get(f"{self.base_url}/{endpoint}", auth=self.auth)
         if response.status_code == 200:
             return response.json().get("data")
         return None
 
     def set_data(self, endpoint, value):
+        """Generische Methode zum Setzen von Daten mit Authentifizierung."""
         payload = {"data": value}
-        response = requests.post(f"{self.base_url}/{endpoint}", json=payload)
+        response = requests.post(f"{self.base_url}/{endpoint}", json=payload, auth=self.auth)
         return response.status_code == 200
 
     def get_wasserhaerte(self):
@@ -21,13 +24,6 @@ class JudoAPI:
     def get_salzstand(self):
         data = self.get_data("5600")
         return int(data[:4], 16) if data else None
-
-    def get_geraet_info(self):
-        return {
-            "typ": self.get_data("FF00"),
-            "version": self.get_data("0100"),
-            "nummer": self.get_data("0600")
-        }
 
     def start_regeneration(self):
         return self.set_data("350000", "")

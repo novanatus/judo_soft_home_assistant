@@ -1,1 +1,0 @@
-DOMAIN = "judo_isoft"

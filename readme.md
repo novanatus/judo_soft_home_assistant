@@ -1,6 +1,6 @@
-# Judo iSoft SAFE+ Home Assistant Integration
+# Judo iSoft Home Assistant Integration
 
-Diese Integration ermöglicht es, eine Judo iSoft SAFE+ Wasserenthärtungsanlage mit Home Assistant zu verbinden.
+Diese Integration ermöglicht es, eine Judo iSoft Wasserenthärtungsanlage mit Home Assistant zu verbinden.
 
 ## Installation
 

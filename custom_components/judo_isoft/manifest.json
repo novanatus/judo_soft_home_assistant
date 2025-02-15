@@ -5,7 +5,7 @@
   "config_flow": true,
   "requirements": [],
   "codeowners": ["@novanatus"],
-  "iot_class": "local_polling"
+  "iot_class": "local_polling",
   "logo": "custom_components/judo_isoft/logo.png",
   "icon": "custom_components/judo_isoft/icon.png"
 }

@@ -102,3 +102,31 @@ class JudoAPI:
         endpoint = f"FE{year}"  # Beispiel: FE2025 für das Jahr 2025
         data = await self.get_data(endpoint)
         return data if data else None
+
+    # Betriebsdaten
+
+    async def get_betriebsstunden(self):
+        """Ruft die Betriebsstunden des Geräts ab."""
+        data = await self.get_data("2500")  # Endpunkt für Betriebsstunden
+        if data:
+            minutes = int(data[:2], 16)
+            hours = int(data[2:4], 16)
+            days = int(data[4:6], 16)
+            return {"minutes": minutes, "hours": hours, "days": days}
+        return None
+
+    async def get_gesamtwassermenge(self):
+        """Ruft die Gesamtwassermenge ab (in m³)."""
+        data = await self.get_data("2800")  # Endpunkt für Gesamtwassermenge
+        if data:
+            total = int(data[:8], 16)  # LSB first, daher das gesamte 4-Byte-Datenfeld
+            return total / 1000  # Umrechnung in m³
+        return None
+
+    async def get_weichwassermenge(self):
+        """Ruft die Weichwassermenge ab (in m³)."""
+        data = await self.get_data("2900")  # Endpunkt für Weichwassermenge
+        if data:
+            soft_water = int(data[:8], 16)  # LSB first, daher das gesamte 4-Byte-Datenfeld
+            return soft_water / 1000  # Umrechnung in m³
+        return None

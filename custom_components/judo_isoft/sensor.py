@@ -33,22 +33,45 @@ class JudoSensor(Entity):
 
     async def async_update(self):
         """Aktualisiert den Zustand des Sensors."""
-        # Wenn es eine Methode für das Abrufen von Betriebsdaten gibt, rufen wir sie auf
-        if self._method in ["get_betriebsstunden", "get_gesamtwassermenge", "get_weichwassermenge"]:
-            result = await getattr(self._api, self._method)()
-            if result:
-                if self._method == "get_betriebsstunden":
-                    self._state = f"{result['hours']}h {result['minutes']}m"
-                else:
-                    self._state = f"{result:.2f} m³"  # Format für die Wassermenge
+        try:
+            # Falls es sich um Betriebsdaten handelt (z.B. Betriebsstunden, Gesamtwassermenge)
+            if self._method == "get_betriebsstunden":
+                result = await self._get_betriebsstunden()
+            elif self._method == "get_gesamtwassermenge":
+                result = await self._get_gesamtwassermenge()
+            elif self._method == "get_weichwassermenge":
+                result = await self._get_weichwassermenge()
             else:
-                self._state = "Keine Daten"
-        else:
-            result = await getattr(self._api, self._method)()
+                result = await getattr(self._api, self._method)()
+
             if result:
                 self._state = result
             else:
                 self._state = "Keine Daten"
+        except Exception as e:
+            _LOGGER.error(f"Fehler beim Abrufen des Sensors {self._name}: {e}")
+            self._state = "Fehler"
+
+    async def _get_betriebsstunden(self):
+        """Formatiert die Betriebsstunden als 'h m'."""
+        result = await self._api.get_betriebsstunden()
+        if result:
+            return f"{result['hours']}h {result['minutes']}m"
+        return None
+
+    async def _get_gesamtwassermenge(self):
+        """Formatiert die Gesamtwassermenge als 'm³'."""
+        result = await self._api.get_gesamtwassermenge()
+        if result:
+            return f"{result:.2f} m³"
+        return None
+
+    async def _get_weichwassermenge(self):
+        """Formatiert die Weichwassermenge als 'm³'."""
+        result = await self._api.get_weichwassermenge()
+        if result:
+            return f"{result:.2f} m³"
+        return None
 
     @property
     def name(self):

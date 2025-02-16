@@ -1,3 +1,4 @@
+from datetime import timedelta  # Füge diesen Import hinzu
 from homeassistant.helpers.entity import Entity
 from .api import JudoAPI
 from .const import DOMAIN

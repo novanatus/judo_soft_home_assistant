@@ -4,6 +4,7 @@ import logging
 import async_timeout
 from datetime import datetime, timedelta
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from collections import deque
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -13,13 +14,21 @@ class JudoAPI:
         self.auth = aiohttp.BasicAuth(username, password)
         self.session = aiohttp.ClientSession(auth=self.auth)  # Wiederverwendbare Session
 
+        # Cache für die API-Daten
+        self._cache = {}
+
     async def close(self):
         await self.session.close()
 
     async def _request(self, method, endpoint, payload=None):
-        """Hilfsmethode für API-Requests."""
+        """Hilfsmethode für API-Requests mit Cache-Implementierung."""
         url = f"{self.base_url}/{endpoint}"
         _LOGGER.info(f"Judo API: {method} Anfrage an {url} mit Payload {payload}")
+
+        # Überprüfen, ob die Antwort bereits im Cache ist
+        if endpoint in self._cache:
+            _LOGGER.info(f"Verwende Cache für {url}")
+            return self._cache[endpoint]
 
         try:
             async with async_timeout.timeout(10):  # Timeout setzen
@@ -27,7 +36,11 @@ class JudoAPI:
                     if response.status != 200:
                         _LOGGER.error(f"API-Fehler: {response.status} - {await response.text()}")
                         return None
-                    return await response.json()
+                    result = await response.json()
+
+                    # Cache speichern
+                    self._cache[endpoint] = result
+                    return result
         except asyncio.TimeoutError:
             _LOGGER.error("API-Anfrage hat das Timeout überschritten!")
         except Exception as e:
@@ -35,7 +48,7 @@ class JudoAPI:
         return None
 
     async def get_data(self, endpoint):
-        """Daten von der API abrufen."""
+        """Daten von der API abrufen und im Cache speichern."""
         data = await self._request("GET", endpoint)
         return data.get("data") if data else None
 
@@ -69,7 +82,7 @@ class JudoAPI:
 
     async def get_weichwassermenge(self):
         """Ruft die Weichwassermenge ab (in m³)."""
-        data = await self.get_data("2900")
+        data = await self.get_data("2700")
         if data:
             total_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
             return total_liters / 1000  # Umrechnung von Litern in m³
@@ -77,25 +90,28 @@ class JudoAPI:
 
     async def get_tagesstatistik(self):
         """Ruft die Tagesstatistik für den aktuellen Tag ab."""
-        # Aktuelles Datum ermitteln
-        today = datetime.today()
-
-        # Umwandeln des Datums in den Hex-Wert (z.B. 13.08.2023 => 000D0807E7)
-        hex_date = self.date_to_hex(today)
-        
-        # Den API-Endpunkt mit dem Hex-Wert des aktuellen Datums erstellen
-        endpoint = f"FB{hex_date}"
-        
-        # Daten abrufen
+        # Format des Datums: "FB" gefolgt von hexadezimale Daten des aktuellen Datums
+        current_date = datetime.now().strftime('%y%m%d')
+        endpoint = f"FB{current_date}"
         data = await self.get_data(endpoint)
-        return data if data else None
+        if data:
+            return data
+        return None
 
-    def date_to_hex(self, date: datetime):
-        """Konvertiert das heutige Datum in einen Hex-Wert im Format DDMMYY (z.B. 2023-08-13 -> 000D0807E7)."""
-        # Umwandlung des aktuellen Datums in Hex-Werte
-        hex_date = f"{date.day:04X}{date.month:02X}{date.year % 100:02X}"
-        return hex_date
+    async def set_leckageschutz(self, status):
+        """Aktiviert oder deaktiviert den Leckageschutz."""
+        payload = {"status": "on" if status else "off"}
+        return await self._request("POST", "set_leckageschutz", payload)
 
+    async def start_regeneration(self):
+        """Startet die Regeneration."""
+        return await self._request("POST", "start_regeneration")
+
+    async def set_urlaubsmodus(self, status):
+        """Aktiviert oder deaktiviert den Urlaubsmodus."""
+        payload = {"status": "on" if status else "off"}
+        return await self._request("POST", "set_urlaubsmodus", payload)
+        
 class JudoDataUpdateCoordinator(DataUpdateCoordinator):
     """Koordiniert API-Anfragen für Judo Wasserenthärter."""
 
@@ -116,8 +132,8 @@ class JudoDataUpdateCoordinator(DataUpdateCoordinator):
                 "wasserhaerte": await self.api.get_wasserhaerte(),
                 "salzstand": await self.api.get_salzstand(),
                 "gesamtwassermenge": await self.api.get_gesamtwassermenge(),
-                "weichwassermenge": await self.api.get_weichwassermenge(),  # Weichwassermenge hinzufügen
-                "tagesstatistik": await self.api.get_tagesstatistik(),  # Tagesstatistik für den aktuellen Tag hinzufügen
+                "weichwassermenge": await self.api.get_weichwassermenge(),
+                "tagesstatistik": await self.api.get_tagesstatistik(),
             }
         except Exception as err:
             raise UpdateFailed(f"Fehler beim Abrufen der Judo-Daten: {err}")

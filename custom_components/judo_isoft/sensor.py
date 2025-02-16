@@ -102,6 +102,6 @@ class JudoSensor(SensorEntity):
          if data:
              total_value = data.get("total_value")  # Hier den Gesamtwert extrahieren
              if total_value is not None:
-             return total_value  # Gib nur den Gesamtwert als Zahl zurück (kein " L")
-        return None
+                return total_value  # Gib nur den Gesamtwert als Zahl zurück (kein " L")
+         return None
        

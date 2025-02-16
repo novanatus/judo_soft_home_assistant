@@ -1,5 +1,5 @@
 from datetime import timedelta  # Füge diesen Import hinzu
-from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.entity import SensorEntity
 from .api import JudoAPI
 from .const import DOMAIN
 import logging
@@ -12,19 +12,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
     api = JudoAPI(config["ip"], config["username"], config["password"])
 
     # Sensoren für Wasserhärte, Salzstand, Gesamtwassermenge
-async_add_entities([
-    JudoSensor(api, "Wasserhärte", "get_wasserhaerte", "°dH"),
-    JudoSensor(api, "Salzstand", "get_salzstand", "g"),
-    JudoSensor(api, "Gesamtwassermenge", "get_gesamtwassermenge", "m³"),
-    JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³"),
-    JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h"),
-    JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter"),
-    JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Liter"),
-    JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Liter"),
-    JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Liter")
-], update_before_add=True)
+    async_add_entities([
+         JudoSensor(api, "Wasserhärte", "get_wasserhaerte", "°dH"),
+         JudoSensor(api, "Salzstand", "get_salzstand", "g"),
+         JudoSensor(api, "Gesamtwassermenge", "get_gesamtwassermenge", "m³"),
+         JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³"),
+         JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h"),
+         JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter"),
+         JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Liter"),
+         JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Liter"),
+         JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Liter")
+     ], update_before_add=True)
 
-class JudoSensor(Entity):
+class JudoSensor(SensorEntity):
     def __init__(self, api, name, method, unit):
         self._api = api
         self._name = name

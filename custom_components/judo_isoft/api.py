@@ -62,6 +62,17 @@ class JudoAPI:
                 _LOGGER.error(f"Fehler beim Umwandeln der Wasserhärte-Daten: {data}")
         return None
 
+     async def _get_betriebsstunden(self):
+        data = await self._api.get_betriebsstunden()
+        if data and len(data) == 6:  # Stellen sicher, dass die Daten die erwartete Länge haben
+            minutes = int(data[0:2], 16)   # Erstes Byte → Minuten
+            hours = int(data[2:4], 16)     # Zweites Byte → Stunden
+            days = int(data[4:8], 16)      # Letzte zwei Bytes → Tage
+            
+            return f"{days} Tage, {hours}h, {minutes}min"
+        return None
+
+
     async def get_salzstand(self):
         """Ruft den Salzstand ab."""
         data = await self.get_data("5600")
@@ -160,6 +171,7 @@ class JudoDataUpdateCoordinator(DataUpdateCoordinator):
         try:
             return {
                 "wasserhaerte": await self.api.get_wasserhaerte(),
+                "betriebsstunden": await self.api.get_betriebsstunden(),
                 "salzstand": await self.api.get_salzstand(),
                 "gesamtwassermenge": await self.api.get_gesamtwassermenge(),
                 "weichwassermenge": await self.api.get_weichwassermenge(),

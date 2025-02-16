@@ -1,5 +1,5 @@
 from datetime import timedelta  # Füge diesen Import hinzu
-from homeassistant.components.entity import SensorEntity
+from homeassistant.components.sensor import SensorEntity
 from .api import JudoAPI
 from .const import DOMAIN
 import logging

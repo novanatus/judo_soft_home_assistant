@@ -44,39 +44,24 @@ class JudoAPI:
                 _LOGGER.error(f"Fehler beim API-Update: {e}")
                 return False
 
-    async def get_wasserhaerte(self):
-        """Ruft die Wasserhärte ab."""
-        data = await self.get_data("5100")
-        return int(data[:2], 16) if data else None
-
-    async def get_salzstand(self):
-        """Ruft den Salzstand ab."""
-        data = await self.get_data("5600")
-        return int(data[:4], 16) if data else None
-
-    async def start_regeneration(self):
-        """Startet die Regeneration."""
-        return await self.set_data("350000", "")
-
-    async def set_wasserhaerte(self, haerte):
-        """Setzt die gewünschte Wasserhärte."""
-        hex_value = f"{haerte:02X}"
-        return await self.set_data("3000", hex_value)
-
-    async def set_leckageschutz(self, status):
-        """Schließt oder öffnet den Leckageschutz."""
-        return await self.set_data("3C00" if status else "3D00", "")
-
-    async def set_urlaubsmodus(self, status):
-        """Aktiviert oder deaktiviert den Urlaubsmodus."""
-        return await self.set_data("4100", "01" if status else "00")
-
     # Neue Methoden für Statistiken mit dynamischen Endpunkten
 
     async def get_tagesstatistik(self):
         """Ruft die Tagesstatistik ab (vom aktuellen Tag)."""
-        today = datetime.now().strftime("%d%m%Y")  # Format für das heutige Datum (TTMMYYYY)
-        endpoint = f"FB{today}"  # Beispiel: FB15022025 für den 15.02.2025
+        today = datetime.now()  # Aktuelles Datum und Uhrzeit
+        day = today.day  # Extrahiert den Tag
+        month = today.month  # Extrahiert den Monat
+        year = today.year  # Extrahiert das Jahr
+
+        # Wandelt das Datum in Hex um:
+        day_hex = f"{day:02X}"  # Umwandlung des Tages in Hex
+        month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
+        year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
+
+        # Erstelle den Endpunkt mit dem Format FB<DayHex><MonthHex><YearHex>
+        endpoint = f"FB{day_hex}{month_hex}{year_hex}"
+
+        # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
         return data if data else None
 
@@ -92,14 +77,25 @@ class JudoAPI:
         """Ruft die Monatsstatistik ab (vom aktuellen Monat)."""
         month = datetime.now().month  # Ermittelt den aktuellen Monat
         year = datetime.now().year  # Ermittelt das aktuelle Jahr
-        endpoint = f"FD{year}{month:02d}"  # Beispiel: FD202502 für Februar 2025
+        month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
+        year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
+
+        # Erstelle den Endpunkt für den aktuellen Monat
+        endpoint = f"FD{year_hex}{month_hex}"
+
+        # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
         return data if data else None
 
     async def get_jahresstatistik(self):
         """Ruft die Jahresstatistik ab (vom aktuellen Jahr)."""
         year = datetime.now().year  # Ermittelt das aktuelle Jahr
-        endpoint = f"FE{year}"  # Beispiel: FE2025 für das Jahr 2025
+        year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
+
+        # Erstelle den Endpunkt für das aktuelle Jahr
+        endpoint = f"FE{year_hex}"
+
+        # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
         return data if data else None
 

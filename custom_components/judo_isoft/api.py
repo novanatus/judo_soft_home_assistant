@@ -76,7 +76,7 @@ class JudoAPI:
     async def get_tagesstatistik(self):
         """Ruft die Tagesstatistik ab (vom aktuellen Tag)."""
         today = datetime.now().strftime("%d%m%Y")  # Format für das heutige Datum (TTMMYYYY)
-        endpoint = f"FB{today}"  # Beispiel: FB04022025 für den 04.02.2025
+        endpoint = f"FB{today}"  # Beispiel: FB15022025 für den 15.02.2025
         data = await self.get_data(endpoint)
         return data if data else None
 
@@ -115,20 +115,20 @@ class JudoAPI:
             return {"minutes": minutes, "hours": hours, "days": days}
         return None
 
-  async def get_gesamtwassermenge(self):
-    """Ruft die Gesamtwassermenge ab (in m³)."""
-    data = await self.get_data("2800")  # Endpunkt für Gesamtwassermenge
-    if data:
-        # LSB first: Wir extrahieren die Bytes und setzen sie zusammen
-        total_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
-        return total_liters / 1000  # Umrechnung von Litern in m³
-    return None
+    async def get_gesamtwassermenge(self):
+        """Ruft die Gesamtwassermenge ab (in m³)."""
+        data = await self.get_data("2800")  # Endpunkt für Gesamtwassermenge
+        if data:
+            # LSB first: Wir extrahieren die Bytes und setzen sie zusammen
+            total_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
+            return total_liters / 1000  # Umrechnung von Litern in m³
+        return None
 
-async def get_weichwassermenge(self):
-    """Ruft die Weichwassermenge ab (in m³)."""
-    data = await self.get_data("2900")  # Endpunkt für Weichwassermenge
-    if data:
-        # LSB first: Wir extrahieren die Bytes und setzen sie zusammen
-        soft_water_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
-        return soft_water_liters / 1000  # Umrechnung von Litern in m³
-    return None
+    async def get_weichwassermenge(self):
+        """Ruft die Weichwassermenge ab (in m³)."""
+        data = await self.get_data("2900")  # Endpunkt für Weichwassermenge
+        if data:
+            # LSB first: Wir extrahieren die Bytes und setzen sie zusammen
+            soft_water_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
+            return soft_water_liters / 1000  # Umrechnung von Litern in m³
+        return None

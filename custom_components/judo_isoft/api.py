@@ -63,7 +63,19 @@ class JudoAPI:
 
         # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
-        return data if data else None
+        
+        if data:
+            # Umwandeln des Hex-Strings in Liter
+            total_liters = 0
+            for i in range(0, len(data), 8):  # Jede Zeitperiode hat 8 Hex-Zeichen (4 Bytes)
+                hex_value = data[i:i+8]
+                value = int(hex_value, 16)  # Umwandeln von Hex nach Dezimal
+                total_liters += value  # Addiere den Wert zur Gesamtmenge
+
+            _LOGGER.info(f"Gesamtwasserverbrauch für den Tag: {total_liters} Liter")
+            return total_liters
+        else:
+            return None
 
     async def get_wochenstatistik(self):
         """Ruft die Wochenstatistik ab (von der aktuellen Kalenderwoche)."""

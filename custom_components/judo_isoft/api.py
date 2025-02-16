@@ -90,9 +90,20 @@ class JudoAPI:
 
     async def get_tagesstatistik(self):
         """Ruft die Tagesstatistik für den aktuellen Tag ab."""
-        # Format des Datums: "FB" gefolgt von hexadezimale Daten des aktuellen Datums
-        current_date = datetime.now().strftime('%y%m%d')
-        endpoint = f"FB{current_date}"
+        today = datetime.now()  # Aktuelles Datum und Uhrzeit
+        day = today.day  # Extrahiert den Tag
+        month = today.month  # Extrahiert den Monat
+        year = today.year  # Extrahiert das Jahr
+
+        # Wandelt das Datum in Hex um:
+        day_hex = f"{day:02X}"  # Umwandlung des Tages in Hex
+        month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
+        year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
+
+        # Erstelle den Endpunkt mit dem Format FB00<DayHex><MonthHex><YearHex>
+        endpoint = f"FB00{day_hex}{month_hex}{year_hex}"
+
+        # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
         if data:
             return data
@@ -111,7 +122,7 @@ class JudoAPI:
         """Aktiviert oder deaktiviert den Urlaubsmodus."""
         payload = {"status": "on" if status else "off"}
         return await self._request("POST", "set_urlaubsmodus", payload)
-        
+
 class JudoDataUpdateCoordinator(DataUpdateCoordinator):
     """Koordiniert API-Anfragen für Judo Wasserenthärter."""
 

@@ -98,12 +98,12 @@ class JudoSensor(SensorEntity):
     def unit_of_measurement(self):
         return self._unit
 
-    async def _get_tagesstatistik(self):
-        data = await self._api.get_tagesstatistik()
-        if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
-            return total_liters
-        return None
+   async def _get_tagesstatistik(self):
+    data = await self._api.get_tagesstatistik()
+    if data:
+        return data['total_value']  # Den Gesamtwert aus der API-Antwort verwenden
+    return None
+       
 
     async def _get_wochenstatistik(self):
         data = await self._api.get_wochenstatistik()

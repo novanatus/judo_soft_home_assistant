@@ -63,7 +63,7 @@ class JudoAPI:
         return None
 
     async def get_betriebsstunden(self):
-        data = await self._api.get_betriebsstunden("2500")
+        data = await self.api.get_betriebsstunden("2500")
         if data and len(data) == 6:  # Stellen sicher, dass die Daten die erwartete Länge haben
             minutes = int(data[0:2], 16)   # Erstes Byte → Minuten
             hours = int(data[2:4], 16)     # Zweites Byte → Stunden

@@ -62,7 +62,7 @@ class JudoAPI:
                 _LOGGER.error(f"Fehler beim Umwandeln der Wasserhärte-Daten: {data}")
         return None
 
-     async def _get_betriebsstunden(self):
+    async def _get_betriebsstunden(self):
         data = await self._api.get_betriebsstunden()
         if data and len(data) == 6:  # Stellen sicher, dass die Daten die erwartete Länge haben
             minutes = int(data[0:2], 16)   # Erstes Byte → Minuten

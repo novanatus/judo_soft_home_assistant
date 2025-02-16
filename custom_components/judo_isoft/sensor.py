@@ -56,7 +56,7 @@ class JudoSensor(SensorEntity):
             self._state = "Fehler"
 
     async def _get_betriebsstunden(self):
-        result = await self.api.get_betriebsstunden()
+        result = await self._api.get_betriebsstunden()
         if result:
             return f"{result['hours']}h {result['minutes']}m"
         return None

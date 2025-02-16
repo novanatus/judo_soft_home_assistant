@@ -93,7 +93,7 @@ class JudoAPI:
 
     async def get_weichwassermenge(self):
         """Ruft die Weichwassermenge ab (in m³)."""
-        data = await self.get_data("2700")
+        data = await self.get_data("2900")
         if data:
             total_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
             return total_liters / 1000  # Umrechnung von Litern in m³

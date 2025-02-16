@@ -115,18 +115,20 @@ class JudoAPI:
             return {"minutes": minutes, "hours": hours, "days": days}
         return None
 
-    async def get_gesamtwassermenge(self):
-        """Ruft die Gesamtwassermenge ab (in m³)."""
-        data = await self.get_data("2800")  # Endpunkt für Gesamtwassermenge
-        if data:
-            total = int(data[:8], 16)  # LSB first, daher das gesamte 4-Byte-Datenfeld
-            return total / 1000  # Umrechnung in m³
-        return None
+  async def get_gesamtwassermenge(self):
+    """Ruft die Gesamtwassermenge ab (in m³)."""
+    data = await self.get_data("2800")  # Endpunkt für Gesamtwassermenge
+    if data:
+        # LSB first: Wir extrahieren die Bytes und setzen sie zusammen
+        total_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
+        return total_liters / 1000  # Umrechnung von Litern in m³
+    return None
 
-    async def get_weichwassermenge(self):
-        """Ruft die Weichwassermenge ab (in m³)."""
-        data = await self.get_data("2900")  # Endpunkt für Weichwassermenge
-        if data:
-            soft_water = int(data[:8], 16)  # LSB first, daher das gesamte 4-Byte-Datenfeld
-            return soft_water / 1000  # Umrechnung in m³
-        return None
+async def get_weichwassermenge(self):
+    """Ruft die Weichwassermenge ab (in m³)."""
+    data = await self.get_data("2900")  # Endpunkt für Weichwassermenge
+    if data:
+        # LSB first: Wir extrahieren die Bytes und setzen sie zusammen
+        soft_water_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
+        return soft_water_liters / 1000  # Umrechnung von Litern in m³
+    return None

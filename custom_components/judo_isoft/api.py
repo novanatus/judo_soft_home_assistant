@@ -89,7 +89,7 @@ class JudoAPI:
         return None
 
     async def get_tagesstatistik(self):
-        """Ruft die Tagesstatistik für den aktuellen Tag ab."""
+        """Ruft die Tagesstatistik für den aktuellen Tag ab und berechnet den Gesamtwert."""
         today = datetime.now()  # Aktuelles Datum und Uhrzeit
         day = today.day  # Extrahiert den Tag
         month = today.month  # Extrahiert den Monat
@@ -106,7 +106,26 @@ class JudoAPI:
         # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
         if data:
-            return data
+            # Hier den Hex-String verarbeiten, um die Werte zu extrahieren
+            hourly_values = []
+            total_value = 0
+
+            # Der Hex-String ist immer 32 Byte lang
+            for i in range(0, len(data), 8):  # Jeder Abschnitt hat 8 Zeichen (4 Byte)
+                hex_value = data[i:i+8]  # 8 Zeichen = 4 Byte
+                try:
+                    # Hex-Wert in Dezimal umwandeln und zu den Stundenwerten hinzufügen
+                    value = int(hex_value[:4], 16) + (int(hex_value[4:], 16) << 16)
+                    hourly_values.append(value)
+                    total_value += value  # Addiere den Wert für den Gesamtwert
+                except ValueError:
+                    _LOGGER.error(f"Fehler beim Verarbeiten des Hex-Strings: {data}")
+                    return None
+            
+            return {
+                "hourly_values": hourly_values,
+                "total_value": total_value,
+            }
         return None
 
     async def set_leckageschutz(self, status):

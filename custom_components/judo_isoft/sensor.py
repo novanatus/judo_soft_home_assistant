@@ -32,11 +32,9 @@ class JudoSensor(SensorEntity):
         self._unit = unit
         self._state = None
 
-
     async def async_update(self):
         """Aktualisiert den Zustand des Sensors."""
         try:
-            # Falls es sich um Betriebsdaten handelt (z.B. Betriebsstunden, Gesamtwassermenge)
             if self._method == "get_betriebsstunden":
                 result = await self._get_betriebsstunden()
             elif self._method == "get_gesamtwassermenge":
@@ -46,7 +44,7 @@ class JudoSensor(SensorEntity):
             elif self._method == "get_salzstand":
                 result = await self._get_salzstand()
             elif self._method == "get_wasserhaerte":
-                result = await self._get_wasserhaerte()  # Neu hinzugefügt
+                result = await self._get_wasserhaerte()
             else:
                 result = await getattr(self._api, self._method)()
 
@@ -59,85 +57,71 @@ class JudoSensor(SensorEntity):
             self._state = "Fehler"
 
     async def _get_betriebsstunden(self):
-        """Formatiert die Betriebsstunden als 'h m'."""
         result = await self._api.get_betriebsstunden()
         if result:
             return f"{result['hours']}h {result['minutes']}m"
         return None
 
     async def _get_gesamtwassermenge(self):
-        """Formatiert die Gesamtwassermenge als 'm³'."""
         result = await self._api.get_gesamtwassermenge()
         if result:
             return f"{result:.2f} m³"
         return None
 
     async def _get_weichwassermenge(self):
-        """Formatiert die Weichwassermenge als 'm³'."""
         result = await self._api.get_weichwassermenge()
         if result:
             return f"{result:.2f} m³"
         return None
 
     async def _get_salzstand(self):
-        """Gibt den Salzstand in Gramm zurück."""
         result = await self._api.get_salzstand()
         if result:
             return f"{result} g"
         return None
 
     async def _get_wasserhaerte(self):
-        """Gibt die Wasserhärte in °dH zurück."""
-        result = await self._api.get_wasserhaerte()  # Hier wird die Methode get_wasserhaerte verwendet
+        result = await self._api.get_wasserhaerte()
         if result:
             return f"{result} °dH"
         return None
 
     @property
     def name(self):
-        """Gibt den Namen des Sensors zurück."""
         return self._name
 
     @property
     def state(self):
-        """Gibt den aktuellen Zustand des Sensors zurück."""
         return self._state
 
     @property
     def unit_of_measurement(self):
-        """Gibt die Einheit des Sensors zurück."""
         return self._unit
 
     async def _get_tagesstatistik(self):
-        """Summiert die Tagesstatistik und gibt den Wert in Litern zurück."""
         data = await self._api.get_tagesstatistik()
         if data:
-            # Hier gehen wir davon aus, dass die Daten hex-codierte Werte für jede Zeitspanne sind
-            # Die Funktion summiert diese Werte und gibt sie in Litern zurück
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
             return total_liters
         return None
 
     async def _get_wochenstatistik(self):
-        """Summiert die Wochenstatistik und gibt den Wert in Litern zurück."""
         data = await self._api.get_wochenstatistik()
         if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
             return total_liters
         return None
 
     async def _get_monatsstatistik(self):
-        """Summiert die Monatsstatistik und gibt den Wert in Litern zurück."""
         data = await self._api.get_monatsstatistik()
         if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
             return total_liters
         return None
 
     async def _get_jahresstatistik(self):
-        """Summiert die Jahresstatistik und gibt den Wert in Litern zurück."""
         data = await self._api.get_jahresstatistik()
         if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
             return total_liters
         return None

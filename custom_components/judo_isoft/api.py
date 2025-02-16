@@ -58,8 +58,8 @@ class JudoAPI:
         month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
         year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
 
-        # Erstelle den Endpunkt mit dem Format FB<DayHex><MonthHex><YearHex>
-        endpoint = f"FB{day_hex}{month_hex}{year_hex}"
+        # Erstelle den Endpunkt mit dem Format FB00<DayHex><MonthHex><YearHex>
+        endpoint = f"FB00{day_hex}{month_hex}{year_hex}"
 
         # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
@@ -80,7 +80,7 @@ class JudoAPI:
         month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
         year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
 
-        # Erstelle den Endpunkt für den aktuellen Monat
+        # Erstelle den Endpunkt für den aktuellen Monat im Format FD<YearHex><MonthHex>
         endpoint = f"FD{year_hex}{month_hex}"
 
         # API-Anfrage an den Endpunkt
@@ -92,7 +92,7 @@ class JudoAPI:
         year = datetime.now().year  # Ermittelt das aktuelle Jahr
         year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
 
-        # Erstelle den Endpunkt für das aktuelle Jahr
+        # Erstelle den Endpunkt für das aktuelle Jahr im Format FE<YearHex>
         endpoint = f"FE{year_hex}"
 
         # API-Anfrage an den Endpunkt

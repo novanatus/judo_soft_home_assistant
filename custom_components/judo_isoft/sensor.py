@@ -42,6 +42,10 @@ class JudoSensor(Entity):
                 result = await self._get_gesamtwassermenge()
             elif self._method == "get_weichwassermenge":
                 result = await self._get_weichwassermenge()
+            elif self._method == "get_salzstand":
+                result = await self._get_salzstand()
+            elif self._method == "get_wasserhaerte":
+                result = await self._get_wasserhaerte()  # Neu hinzugefügt
             else:
                 result = await getattr(self._api, self._method)()
 
@@ -74,6 +78,20 @@ class JudoSensor(Entity):
             return f"{result:.2f} m³"
         return None
 
+    async def _get_salzstand(self):
+        """Gibt den Salzstand in Gramm zurück."""
+        result = await self._api.get_salzstand()
+        if result:
+            return f"{result} g"
+        return None
+
+    async def _get_wasserhaerte(self):
+        """Gibt die Wasserhärte in °dH zurück."""
+        result = await self._api.get_wasserhaerte()  # Hier wird die Methode get_wasserhaerte verwendet
+        if result:
+            return f"{result} °dH"
+        return None
+
     @property
     def name(self):
         """Gibt den Namen des Sensors zurück."""
@@ -99,11 +117,18 @@ class JudoSensor(Entity):
             return total_liters
         return None
 
+    async def _get_wochenstatistik(self):
+        """Summiert die Wochenstatistik und gibt den Wert in Litern zurück."""
+        data = await self._api.get_wochenstatistik()
+        if data:
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            return total_liters
+        return None
+
     async def _get_monatsstatistik(self):
         """Summiert die Monatsstatistik und gibt den Wert in Litern zurück."""
         data = await self._api.get_monatsstatistik()
         if data:
-            # Hier gehen wir davon aus, dass die Daten hex-codierte Werte für jede Zeitspanne sind
             total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
             return total_liters
         return None
@@ -112,7 +137,6 @@ class JudoSensor(Entity):
         """Summiert die Jahresstatistik und gibt den Wert in Litern zurück."""
         data = await self._api.get_jahresstatistik()
         if data:
-            # Hier gehen wir davon aus, dass die Daten hex-codierte Werte für jede Zeitspanne sind
             total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
             return total_liters
         return None

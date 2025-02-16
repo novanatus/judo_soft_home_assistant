@@ -12,17 +12,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
     api = JudoAPI(config["ip"], config["username"], config["password"])
 
     # Sensoren für Wasserhärte, Salzstand, Gesamtwassermenge
-    async_add_entities([
-        JudoSensor(api, "Wasserhärte", "get_wasserhaerte", "°dH", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Salzstand", "get_salzstand", "g", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Gesamtwassermenge", "get_gesamtwassermenge", "m³", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Liter", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Liter", scan_interval=timedelta(minutes=5)),
-        JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Liter", scan_interval=timedelta(minutes=5))
-    ], update_before_add=True)
+async_add_entities([
+    JudoSensor(api, "Wasserhärte", "get_wasserhaerte", "°dH"),
+    JudoSensor(api, "Salzstand", "get_salzstand", "g"),
+    JudoSensor(api, "Gesamtwassermenge", "get_gesamtwassermenge", "m³"),
+    JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³"),
+    JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h"),
+    JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter"),
+    JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Liter"),
+    JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Liter"),
+    JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Liter")
+], update_before_add=True)
 
 class JudoSensor(Entity):
     def __init__(self, api, name, method, unit):
@@ -31,6 +31,7 @@ class JudoSensor(Entity):
         self._method = method
         self._unit = unit
         self._state = None
+
 
     async def async_update(self):
         """Aktualisiert den Zustand des Sensors."""

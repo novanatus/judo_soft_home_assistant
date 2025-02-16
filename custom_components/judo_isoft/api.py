@@ -128,3 +128,31 @@ class JudoAPI:
             soft_water_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
             return soft_water_liters / 1000  # Umrechnung von Litern in m³
         return None
+
+    async def get_wasserhaerte(self):
+        """Ruft die Wasserhärte ab."""
+        data = await self.get_data("5100")
+        if data:
+            try:
+                # Falls die Antwort als Hex vorliegt, wird sie umgewandelt
+                return int(data[:2], 16)  # Konvertierung des ersten Teils von Hex in Integer
+            except ValueError:
+                _LOGGER.error(f"Fehler beim Umwandeln der Wasserhärte-Daten: {data}")
+                return None
+        else:
+            _LOGGER.error("Keine Daten für Wasserhärte erhalten.")
+            return None
+
+    async def get_salzstand(self):
+        """Ruft den Salzstand ab."""
+        data = await self.get_data("5600")
+        if data:
+            try:
+                # Falls die Antwort als Hex vorliegt, wird sie umgewandelt
+                return int(data[:4], 16)  # Konvertierung der ersten 4 Zeichen von Hex in Integer
+            except ValueError:
+                _LOGGER.error(f"Fehler beim Umwandeln der Salzstand-Daten: {data}")
+                return None
+        else:
+            _LOGGER.error("Keine Daten für Salzstand erhalten.")
+            return None

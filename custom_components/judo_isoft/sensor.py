@@ -17,10 +17,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         JudoSensor(api, "Gesamtwassermenge", "get_gesamtwassermenge", "m³"),
         JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³"),
         JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h"),
-        JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Daten"),
-        JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Daten"),
-        JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Daten"),
-        JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Daten")
+        JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter"),
+        JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Liter"),
+        JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Liter"),
+        JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Liter")
     ], update_before_add=True)
 
 class JudoSensor(Entity):
@@ -87,3 +87,31 @@ class JudoSensor(Entity):
     def unit_of_measurement(self):
         """Gibt die Einheit des Sensors zurück."""
         return self._unit
+
+    async def _get_tagesstatistik(self):
+        """Summiert die Tagesstatistik und gibt den Wert in Litern zurück."""
+        data = await self._api.get_tagesstatistik()
+        if data:
+            # Hier gehen wir davon aus, dass die Daten hex-codierte Werte für jede Zeitspanne sind
+            # Die Funktion summiert diese Werte und gibt sie in Litern zurück
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            return total_liters
+        return None
+
+    async def _get_monatsstatistik(self):
+        """Summiert die Monatsstatistik und gibt den Wert in Litern zurück."""
+        data = await self._api.get_monatsstatistik()
+        if data:
+            # Hier gehen wir davon aus, dass die Daten hex-codierte Werte für jede Zeitspanne sind
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            return total_liters
+        return None
+
+    async def _get_jahresstatistik(self):
+        """Summiert die Jahresstatistik und gibt den Wert in Litern zurück."""
+        data = await self._api.get_jahresstatistik()
+        if data:
+            # Hier gehen wir davon aus, dass die Daten hex-codierte Werte für jede Zeitspanne sind
+            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])  # Beispielhafte Berechnung in Litern
+            return total_liters
+        return None

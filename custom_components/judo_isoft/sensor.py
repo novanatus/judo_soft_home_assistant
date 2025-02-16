@@ -18,10 +18,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
          JudoSensor(api, "Gesamtwassermenge", "get_gesamtwassermenge", "m³"),
          JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³"),
          JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h"),
-         JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter"),
-         JudoSensor(api, "Wochenstatistik", "get_wochenstatistik", "Liter"),
-         JudoSensor(api, "Monatsstatistik", "get_monatsstatistik", "Liter"),
-         JudoSensor(api, "Jahresstatistik", "get_jahresstatistik", "Liter")
+         JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter")
      ], update_before_add=True)
 
 class JudoSensor(SensorEntity):
@@ -105,24 +102,3 @@ class JudoSensor(SensorEntity):
             return f"{data} L"  # Rückgabe des Gesamtwertes in Litern
         return None
        
-
-    async def _get_wochenstatistik(self):
-        data = await self._api.get_wochenstatistik()
-        if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
-            return total_liters
-        return None
-
-    async def _get_monatsstatistik(self):
-        data = await self._api.get_monatsstatistik()
-        if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
-            return total_liters
-        return None
-
-    async def _get_jahresstatistik(self):
-        data = await self._api.get_jahresstatistik()
-        if data:
-            total_liters = sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)])
-            return total_liters
-        return None

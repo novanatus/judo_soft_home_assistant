@@ -9,13 +9,11 @@ _LOGGER = logging.getLogger(__name__)
 
 class JudoAPI:
     def __init__(self, ip, username, password):
-        """Initialisiert die Verbindung zur Judo API."""
         self.base_url = f"http://{ip}/api/rest"
         self.auth = aiohttp.BasicAuth(username, password)
         self.session = aiohttp.ClientSession(auth=self.auth)  # Wiederverwendbare Session
 
     async def close(self):
-        """Schließt die Session der API-Verbindung."""
         await self.session.close()
 
     async def _request(self, method, endpoint, payload=None):
@@ -71,39 +69,32 @@ class JudoAPI:
 
     async def get_weichwassermenge(self):
         """Ruft die Weichwassermenge ab (in m³)."""
-        data = await self.get_data("6100")
+        data = await self.get_data("2900")
         if data:
             total_liters = int(data[:2], 16) + (int(data[2:4], 16) << 8) + (int(data[4:6], 16) << 16) + (int(data[6:8], 16) << 24)
             return total_liters / 1000  # Umrechnung von Litern in m³
         return None
 
-    async def get_betriebsstunden(self):
-        """Ruft die Betriebsstunden des Geräts ab."""
-        data = await self.get_data("7000")
-        if data:
-            try:
-                hours = int(data[:2], 16)
-                minutes = int(data[2:4], 16)
-                return {"hours": hours, "minutes": minutes}
-            except ValueError:
-                _LOGGER.error(f"Fehler beim Umwandeln der Betriebsstunden-Daten: {data}")
-        return None
-
     async def get_tagesstatistik(self):
-        """Ruft die Tagesstatistik ab (in hex-codierten Werten)."""
-        return await self.get_data("7200")
+        """Ruft die Tagesstatistik für den aktuellen Tag ab."""
+        # Aktuelles Datum ermitteln
+        today = datetime.today()
 
-    async def get_wochenstatistik(self):
-        """Ruft die Wochenstatistik ab (in hex-codierten Werten)."""
-        return await self.get_data("7300")
+        # Umwandeln des Datums in den Hex-Wert (z.B. 13.08.2023 => 000D0807E7)
+        hex_date = self.date_to_hex(today)
+        
+        # Den API-Endpunkt mit dem Hex-Wert des aktuellen Datums erstellen
+        endpoint = f"FB{hex_date}"
+        
+        # Daten abrufen
+        data = await self.get_data(endpoint)
+        return data if data else None
 
-    async def get_monatsstatistik(self):
-        """Ruft die Monatsstatistik ab (in hex-codierten Werten)."""
-        return await self.get_data("7400")
-
-    async def get_jahresstatistik(self):
-        """Ruft die Jahresstatistik ab (in hex-codierten Werten)."""
-        return await self.get_data("7500")
+    def date_to_hex(self, date: datetime):
+        """Konvertiert das heutige Datum in einen Hex-Wert im Format DDMMYY (z.B. 2023-08-13 -> 000D0807E7)."""
+        # Umwandlung des aktuellen Datums in Hex-Werte
+        hex_date = f"{date.day:04X}{date.month:02X}{date.year % 100:02X}"
+        return hex_date
 
 class JudoDataUpdateCoordinator(DataUpdateCoordinator):
     """Koordiniert API-Anfragen für Judo Wasserenthärter."""
@@ -125,12 +116,8 @@ class JudoDataUpdateCoordinator(DataUpdateCoordinator):
                 "wasserhaerte": await self.api.get_wasserhaerte(),
                 "salzstand": await self.api.get_salzstand(),
                 "gesamtwassermenge": await self.api.get_gesamtwassermenge(),
-                "weichwassermenge": await self.api.get_weichwassermenge(),
-                "betriebsstunden": await self.api.get_betriebsstunden(),
-                "tagesstatistik": await self.api.get_tagesstatistik(),
-                "wochenstatistik": await self.api.get_wochenstatistik(),
-                "monatsstatistik": await self.api.get_monatsstatistik(),
-                "jahresstatistik": await self.api.get_jahresstatistik(),
+                "weichwassermenge": await self.api.get_weichwassermenge(),  # Weichwassermenge hinzufügen
+                "tagesstatistik": await self.api.get_tagesstatistik(),  # Tagesstatistik für den aktuellen Tag hinzufügen
             }
         except Exception as err:
             raise UpdateFailed(f"Fehler beim Abrufen der Judo-Daten: {err}")

@@ -99,10 +99,11 @@ class JudoSensor(SensorEntity):
         return self._unit
 
    async def _get_tagesstatistik(self):
-    data = await self._api.get_tagesstatistik()
-    if data:
-        return data['total_value']  # Den Gesamtwert aus der API-Antwort verwenden
-    return None
+        data = await self._api.get_tagesstatistik()
+        if data:
+            # Die API gibt den Wert schon in Litern zurück, wir geben diesen direkt aus
+            return f"{data} L"  # Rückgabe des Gesamtwertes in Litern
+        return None
        
 
     async def _get_wochenstatistik(self):

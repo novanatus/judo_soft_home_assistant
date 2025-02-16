@@ -42,6 +42,8 @@ class JudoSensor(SensorEntity):
                 result = await self._get_salzstand()
             elif self._method == "get_wasserhaerte":
                 result = await self._get_wasserhaerte()
+            elif self._method == "get_tagesstatistik":  # Hier wird tagesstatistik hinzugefügt
+                result = await self._get_tagesstatistik()  # Rufe die Methode für die Tagesstatistik auf    
             else:
                 result = await getattr(self._api, self._method)()
 
@@ -96,9 +98,10 @@ class JudoSensor(SensorEntity):
         return self._unit
 
     async def _get_tagesstatistik(self):
-        data = await self._api.get_tagesstatistik()
-        if data:
-            # Die API gibt den Wert schon in Litern zurück, wir geben diesen direkt aus
-            return f"{data} L"  # Rückgabe des Gesamtwertes in Litern
+         data = await self._api.get_tagesstatistik()
+         if data:
+             total_value = data.get("total_value")  # Hier den Gesamtwert extrahieren
+             if total_value is not None:
+             return total_value  # Gib nur den Gesamtwert als Zahl zurück (kein " L")
         return None
        

@@ -98,7 +98,7 @@ class JudoSensor(SensorEntity):
     def unit_of_measurement(self):
         return self._unit
 
-   async def _get_tagesstatistik(self):
+    async def _get_tagesstatistik(self):
         data = await self._api.get_tagesstatistik()
         if data:
             # Die API gibt den Wert schon in Litern zurück, wir geben diesen direkt aus

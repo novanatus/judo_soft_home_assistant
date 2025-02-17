@@ -43,7 +43,8 @@ class JudoSensor(SensorEntity):
             elif self._method == "get_wasserhaerte":
                 result = await self._get_wasserhaerte()
             elif self._method == "get_tagesstatistik":  # Hier wird tagesstatistik hinzugefügt
-                result = await self._get_tagesstatistik()  # Rufe die Methode für die Tagesstatistik auf    
+                data = await self._get_tagesstatistik()  # Rufe die Methode für die Tagesstatistik auf    
+                result = data
             else:
                 result = await getattr(self._api, self._method)()
 

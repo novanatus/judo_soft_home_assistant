@@ -64,25 +64,25 @@ class JudoSensor(SensorEntity):
     async def _get_gesamtwassermenge(self):
         result = await self._api.get_gesamtwassermenge()
         if result:
-            return f"{result:.2f} m³"
+            return f"{result:.2f}"
         return None
 
     async def _get_weichwassermenge(self):
         result = await self._api.get_weichwassermenge()
         if result:
-            return f"{result:.2f} m³"
+            return f"{result:.2f}"
         return None
 
     async def _get_salzstand(self):
         result = await self._api.get_salzstand()
         if result:
-            return f"{result} g"
+            return f"{result}"
         return None
 
     async def _get_wasserhaerte(self):
         result = await self._api.get_wasserhaerte()
         if result:
-            return f"{result} °dH"
+            return f"{result}"
         return None
 
     @property

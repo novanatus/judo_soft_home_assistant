@@ -101,64 +101,55 @@ class JudoAPI:
         return None
 
     async def get_tagesstatistik(self):
-        """Ruft die Tagesstatistik für den aktuellen Tag ab und berechnet den Gesamtwert."""
-        today = datetime.now()  # Aktuelles Datum und Uhrzeit
-        day = today.day  # Extrahiert den Tag
-        month = today.month  # Extrahiert den Monat
-        year = today.year  # Extrahiert das Jahr
+     """Ruft die Tagesstatistik für den aktuellen Tag ab und berechnet den Gesamtwert."""
+     today = datetime.now()  # Aktuelles Datum und Uhrzeit
+     day = today.day  # Extrahiert den Tag
+     month = today.month  # Extrahiert den Monat
+     year = today.year  # Extrahiert das Jahr
 
-        # Wandelt das Datum in Hex um:
-        day_hex = f"{day:02X}"  # Umwandlung des Tages in Hex
-        month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
-        year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
+     # Wandelt das Datum in Hex um:
+     day_hex = f"{day:02X}"  # Umwandlung des Tages in Hex
+     month_hex = f"{month:02X}"  # Umwandlung des Monats in Hex
+     year_hex = f"{year:04X}"  # Umwandlung des Jahres in Hex
 
-        # Erstelle den Endpunkt mit dem Format FB00<DayHex><MonthHex><YearHex>
-        endpoint = f"FB00{day_hex}{month_hex}{year_hex}"
-        _LOGGER.debug(f"Erstellter API-Endpunkt: {endpoint}")
+     # Erstelle den Endpunkt mit dem Format FB00<DayHex><MonthHex><YearHex>
+     endpoint = f"FB00{day_hex}{month_hex}{year_hex}"
+     _LOGGER.debug(f"Erstellter API-Endpunkt: {endpoint}")
 
-        # API-Anfrage an den Endpunkt
-        data = await self.get_data(endpoint)
+     # API-Anfrage an den Endpunkt
+     data = await self.get_data(endpoint)
     
-        if data:
-            _LOGGER.debug(f"Antwort vom Endpunkt {endpoint}: {data}")
+     if data:
+         _LOGGER.debug(f"Antwort vom Endpunkt {endpoint}: {data}")
         
-            # Wenn die Antwort im JSON-Format zurückgegeben wird
-            try:
-                json_response = json.loads(data)  # Falls 'data' als String zurückkommt
-                if 'data' in json_response:
-                    hex_string = json_response['data']
-                    _LOGGER.debug(f"Extrahierter Hex-String: {hex_string}")
+         # Da die Antwort ein Hex-String ist, verarbeite den Hex-String direkt
+         hex_string = data  # Direkt als Hex-String verwenden
+         _LOGGER.debug(f"Extrahierter Hex-String: {hex_string}")
 
-                    # Hier den Hex-String verarbeiten, um die Werte zu extrahieren
-                    hourly_values = []
-                    total_value = 0
+         # Hier den Hex-String verarbeiten, um die Werte zu extrahieren
+         hourly_values = []
+         total_value = 0
 
-                    # Der Hex-String ist immer 32 Byte lang (d.h. 64 Zeichen)
-                    for i in range(0, len(hex_string), 8):  # Jeder Abschnitt hat 8 Zeichen (4 Byte)
-                        hex_value = hex_string[i:i + 8]  # 8 Zeichen = 4 Byte
-                        try:
-                            # Wandelt den Hex-Wert in Dezimal um und fügt ihn zu den Stundenwerten hinzu
-                            value = int(hex_value[:4], 16)  # Wandelt die ersten 4 Zeichen in Dezimal um
-                            hourly_values.append(value)
-                            total_value += value  # Addiere den Wert zum Gesamtwert
-                        except ValueError:
-                            _LOGGER.error(f"Fehler beim Verarbeiten des Hex-Strings: {hex_string}")
-                            return None
-                
-                    # Rückgabe der berechneten Werte
-                    return {
-                        "hourly_values": hourly_values,
-                        "total_value": total_value,
-                    }
-                else:
-                    _LOGGER.error(f"Fehlender 'data'-Schlüssel in der Antwort: {json_response}")
-                    return None
-            except json.JSONDecodeError:
-                _LOGGER.error(f"Fehler beim Parsen der Antwort: {data}")
-                return None
-        else:
-            _LOGGER.error(f"Keine Antwort vom Endpunkt {endpoint} erhalten")
-            return None
+         # Der Hex-String ist immer 32 Byte lang (d.h. 64 Zeichen)
+         for i in range(0, len(hex_string), 8):  # Jeder Abschnitt hat 8 Zeichen (4 Byte)
+             hex_value = hex_string[i:i + 8]  # 8 Zeichen = 4 Byte
+             try:
+                 # Wandelt den Hex-Wert in Dezimal um und fügt ihn zu den Stundenwerten hinzu
+                 value = int(hex_value[:4], 16)  # Wandelt die ersten 4 Zeichen in Dezimal um
+                 hourly_values.append(value)
+                 total_value += value  # Addiere den Wert zum Gesamtwert
+             except ValueError:
+                 _LOGGER.error(f"Fehler beim Verarbeiten des Hex-Strings: {hex_string}")
+                 return None
+        
+         # Rückgabe der berechneten Werte
+         return {
+             "hourly_values": hourly_values,
+             "total_value": total_value,
+         }
+     else:
+         _LOGGER.error(f"Keine Antwort vom Endpunkt {endpoint} erhalten")
+         return None
 
 
     async def start_regeneration(self):

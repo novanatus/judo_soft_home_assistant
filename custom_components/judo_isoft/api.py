@@ -124,6 +124,7 @@ class JudoAPI:
             # Der Hex-String ist immer 32 Byte lang
             for i in range(0, len(data), 8):  # Jeder Abschnitt hat 8 Zeichen (4 Byte)
                 hex_value = data[i:i+8]  # 8 Zeichen = 4 Byte
+                _LOGGER.error(f"Keine Daten vom Endpunkt {endpoint} erhalten")
                 try:
                     # Hex-Wert in Dezimal umwandeln und zu den Stundenwerten hinzufügen
                     value = int(hex_value[:4], 16) 

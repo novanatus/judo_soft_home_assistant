@@ -139,14 +139,16 @@ class JudoAPI:
             }
         return None
 
+
     async def start_regeneration(self):
-      """Startet die Regeneration über den API-Endpunkt."""
-       return await self._request("POST", "350000")  # API-Endpunkt für Regeneration
+        """Startet die Regeneration über den API-Endpunkt."""
+        return await self._request("POST", "350000")  # API-Endpunkt für Regeneration
 
     async def set_leckageschutz(self, status):
         """Aktiviert oder deaktiviert den Leckageschutz (setze Alarm)."""
         endpoint = "3C00" if status else "3C01"  # Setzen (3C00) / Zurücksetzen (3C01) des Leckagealarms
         return await self._request("POST", endpoint)
+
 
 class JudoDataUpdateCoordinator(DataUpdateCoordinator):
     """Koordiniert API-Anfragen für Judo Wasserenthärter."""

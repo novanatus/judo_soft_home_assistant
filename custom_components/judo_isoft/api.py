@@ -117,29 +117,47 @@ class JudoAPI:
 
         # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)
+    
         if data:
-            # Hier den Hex-String verarbeiten, um die Werte zu extrahieren
-            hourly_values = []
-            total_value = 0
+            _LOGGER.debug(f"Antwort vom Endpunkt {endpoint}: {data}")
+        
+            # Wenn die Antwort im JSON-Format zurückgegeben wird
+            try:
+                json_response = json.loads(data)  # Falls 'data' als String zurückkommt
+                if 'data' in json_response:
+                    hex_string = json_response['data']
+                    _LOGGER.debug(f"Extrahierter Hex-String: {hex_string}")
 
-            # Der Hex-String ist immer 32 Byte lang
-            for i in range(0, len(data), 8):  # Jeder Abschnitt hat 8 Zeichen (4 Byte)
-                hex_value = data[i:i+8]  # 8 Zeichen = 4 Byte
-                _LOGGER.error(f"Keine Daten vom Endpunkt {endpoint} erhalten")
-                try:
-                    # Hex-Wert in Dezimal umwandeln und zu den Stundenwerten hinzufügen
-                    value = int(hex_value[:4], 16) 
-                    hourly_values.append(value)
-                    total_value += value  # Addiere den Wert für den Gesamtwert
-                except ValueError:
-                    _LOGGER.error(f"Fehler beim Verarbeiten des Hex-Strings: {data}")
+                    # Hier den Hex-String verarbeiten, um die Werte zu extrahieren
+                    hourly_values = []
+                    total_value = 0
+
+                    # Der Hex-String ist immer 32 Byte lang (d.h. 64 Zeichen)
+                    for i in range(0, len(hex_string), 8):  # Jeder Abschnitt hat 8 Zeichen (4 Byte)
+                        hex_value = hex_string[i:i + 8]  # 8 Zeichen = 4 Byte
+                        try:
+                            # Wandelt den Hex-Wert in Dezimal um und fügt ihn zu den Stundenwerten hinzu
+                            value = int(hex_value[:4], 16)  # Wandelt die ersten 4 Zeichen in Dezimal um
+                            hourly_values.append(value)
+                            total_value += value  # Addiere den Wert zum Gesamtwert
+                        except ValueError:
+                            _LOGGER.error(f"Fehler beim Verarbeiten des Hex-Strings: {hex_string}")
+                            return None
+                
+                    # Rückgabe der berechneten Werte
+                    return {
+                        "hourly_values": hourly_values,
+                        "total_value": total_value,
+                    }
+                else:
+                    _LOGGER.error(f"Fehlender 'data'-Schlüssel in der Antwort: {json_response}")
                     return None
-            
-            return {
-                "hourly_values": hourly_values,
-                "total_value": total_value,
-            }
-        return None
+            except json.JSONDecodeError:
+                _LOGGER.error(f"Fehler beim Parsen der Antwort: {data}")
+                return None
+        else:
+            _LOGGER.error(f"Keine Antwort vom Endpunkt {endpoint} erhalten")
+            return None
 
 
     async def start_regeneration(self):

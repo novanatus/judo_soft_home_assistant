@@ -104,6 +104,6 @@ class JudoSensor(SensorEntity):
          if data:
              total_value = data.get("total_value")  # Hier den Gesamtwert extrahieren
              if total_value is not None:
-                return total_value  # Gib nur den Gesamtwert als Zahl zurück (kein " L")
+                return f"{total_value} {self._unit}"  # Füge die Einheit hinzu (z. B. "Liter")
          return None
        

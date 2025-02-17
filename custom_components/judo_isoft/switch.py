@@ -1,81 +1,61 @@
-from homeassistant.helpers.entity import ToggleEntity
+from homeassistant.components.button import ButtonEntity
 from .api import JudoAPI
 from .const import DOMAIN
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    """Setzt die Schalter für Home Assistant auf."""
-    config = hass.data[DOMAIN][entry.entry_id]  
-    api = JudoAPI(config["ip"], config["username"], config["password"])  
-    
+    """Setzt die Taster für Home Assistant auf."""
+    config = hass.data[DOMAIN][entry.entry_id]
+    api = JudoAPI(config["ip"], config["username"], config["password"])
+
     async_add_entities([
-        JudoLeckageschutz(api),
-        JudoRegeneration(api),
-        JudoUrlaubsmodus(api)
+        JudoLeckageschutzButton(api),
+        JudoRegenerationButton(api),
+        JudoUrlaubsmodusButton(api)
     ])
 
-class JudoLeckageschutz(ToggleEntity):
+class JudoLeckageschutzButton(ButtonEntity):
+    """Taster für Leckageschutz."""
     def __init__(self, api):
         self._api = api
-        self._state = False
 
-    async def async_turn_on(self):
-        if await self._api.set_leckageschutz(True):  # ✅ FIX: `await` hinzugefügt
-            self._state = True
-            self.schedule_update_ha_state()
-
-    async def async_turn_off(self):
-        if await self._api.set_leckageschutz(False):  # ✅ FIX: `await` hinzugefügt
-            self._state = False
-            self.schedule_update_ha_state()
-
-    @property
-    def is_on(self):
-        return self._state
+    async def async_press(self):
+        """Aktion, wenn der Taster gedrückt wird."""
+        if await self._api.set_leckageschutz(True):
+            _LOGGER.info("Leckageschutz aktiviert.")
+        else:
+            _LOGGER.error("Fehler beim Aktivieren des Leckageschutzes.")
 
     @property
     def name(self):
         return "Leckageschutz"
 
-class JudoRegeneration(ToggleEntity):
+class JudoRegenerationButton(ButtonEntity):
+    """Taster für Regeneration."""
     def __init__(self, api):
         self._api = api
-        self._state = False
 
-    async def async_turn_on(self):
-        if await self._api.start_regeneration():  # ✅ FIX: `await` hinzugefügt
-            self._state = True
-            self.schedule_update_ha_state()
-
-    async def async_turn_off(self):
-        self._state = False
-        self.schedule_update_ha_state()
-
-    @property
-    def is_on(self):
-        return self._state
+    async def async_press(self):
+        """Aktion, wenn der Taster gedrückt wird."""
+        if await self._api.start_regeneration():
+            _LOGGER.info("Regeneration gestartet.")
+        else:
+            _LOGGER.error("Fehler beim Starten der Regeneration.")
 
     @property
     def name(self):
         return "Regeneration"
 
-class JudoUrlaubsmodus(ToggleEntity):
+class JudoUrlaubsmodusButton(ButtonEntity):
+    """Taster für Urlaubsmodus."""
     def __init__(self, api):
         self._api = api
-        self._state = False
 
-    async def async_turn_on(self):
-        if await self._api.set_urlaubsmodus(True):  # ✅ FIX: `await` hinzugefügt
-            self._state = True
-            self.schedule_update_ha_state()
-
-    async def async_turn_off(self):
-        if await self._api.set_urlaubsmodus(False):  # ✅ FIX: `await` hinzugefügt
-            self._state = False
-            self.schedule_update_ha_state()
-
-    @property
-    def is_on(self):
-        return self._state
+    async def async_press(self):
+        """Aktion, wenn der Taster gedrückt wird."""
+        if await self._api.set_urlaubsmodus(True):
+            _LOGGER.info("Urlaubsmodus aktiviert.")
+        else:
+            _LOGGER.error("Fehler beim Aktivieren des Urlaubsmodus.")
 
     @property
     def name(self):

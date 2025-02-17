@@ -101,8 +101,10 @@ class JudoSensor(SensorEntity):
 
     async def _get_tagesstatistik(self):
          data = await self._api.get_tagesstatistik()
+         _LOGGER.debug(f"Rückgabewerte der API für Tagesstatistik: {data}")  # Logging hinzufügen
          if data:
              total_value = data.get("total_value")  # Hier den Gesamtwert extrahieren
+             _LOGGER.debug(f"Extrahierter total_value: {total_value}")  # Logging für total_value
              if total_value is not None:
                 return f"{total_value} {self._unit}"  # Füge die Einheit hinzu (z. B. "Liter")
          return None

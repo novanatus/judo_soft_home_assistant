@@ -126,7 +126,7 @@ class JudoAPI:
                 hex_value = data[i:i+8]  # 8 Zeichen = 4 Byte
                 try:
                     # Hex-Wert in Dezimal umwandeln und zu den Stundenwerten hinzufügen
-                    value = int(hex_value[:4], 16) + (int(hex_value[4:], 16) << 16)
+                    value = int(hex_value[:4], 16) 
                     hourly_values.append(value)
                     total_value += value  # Addiere den Wert für den Gesamtwert
                 except ValueError:

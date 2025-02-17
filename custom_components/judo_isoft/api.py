@@ -113,6 +113,7 @@ class JudoAPI:
 
         # Erstelle den Endpunkt mit dem Format FB00<DayHex><MonthHex><YearHex>
         endpoint = f"FB00{day_hex}{month_hex}{year_hex}"
+        _LOGGER.debug(f"Erstellter API-Endpunkt: {endpoint}")
 
         # API-Anfrage an den Endpunkt
         data = await self.get_data(endpoint)

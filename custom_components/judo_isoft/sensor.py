@@ -33,7 +33,8 @@ class JudoSensor(SensorEntity):
         """Aktualisiert den Zustand des Sensors."""
         try:
             if self._method == "get_betriebsstunden":
-                result = await self._get_betriebsstunden()
+                data = await self._get_betriebsstunden()
+                result = data
             elif self._method == "get_gesamtwassermenge":
                 result = await self._get_gesamtwassermenge()
             elif self._method == "get_weichwassermenge":
@@ -57,8 +58,8 @@ class JudoSensor(SensorEntity):
             self._state = "Fehler"
 
     async def _get_betriebsstunden(self):
-        result = await self._api.get_betriebsstunden()
-        if result:
+        data = await self._api.get_betriebsstunden()
+        if data:
             return f"{result['hours']}h {result['minutes']}m"
         return None
 

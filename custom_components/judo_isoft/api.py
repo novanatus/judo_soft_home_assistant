@@ -26,10 +26,6 @@ class JudoAPI:
         url = f"{self.base_url}/{endpoint}"
         _LOGGER.info(f"Judo API: {method} Anfrage an {url} mit Payload {payload}")
 
-        # Überprüfen, ob die Antwort bereits im Cache ist
-        if endpoint in self._cache:
-            _LOGGER.info(f"Verwende Cache für {url}")
-            return self._cache[endpoint]
 
         try:
             async with async_timeout.timeout(10):  # Timeout setzen
@@ -39,8 +35,7 @@ class JudoAPI:
                         return None
                     result = await response.json()
 
-                    # Cache speichern
-                    self._cache[endpoint] = result
+                    
                     return result
         except asyncio.TimeoutError:
             _LOGGER.error("API-Anfrage hat das Timeout überschritten!")

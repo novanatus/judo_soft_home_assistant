@@ -15,8 +15,7 @@ class JudoAPI:
         self.auth = aiohttp.BasicAuth(username, password)
         self.session = aiohttp.ClientSession(auth=self.auth)  # Wiederverwendbare Session
 
-        # Cache für die API-Daten
-        self._cache = {}
+        
 
     async def close(self):
         await self.session.close()

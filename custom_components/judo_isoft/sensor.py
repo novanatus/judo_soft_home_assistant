@@ -4,6 +4,9 @@ from .api import JudoAPI
 from .const import DOMAIN
 import logging
 
+
+SCAN_INTERVAL = timedelta(seconds=40)
+
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -19,7 +22,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
          JudoSensor(api, "Weichwassermenge", "get_weichwassermenge", "m³"),
          JudoSensor(api, "Betriebsstunden", "get_betriebsstunden", "h"),
          JudoSensor(api, "Tagesstatistik", "get_tagesstatistik", "Liter")
-     ], update_before_add=True)
+     ], update_before_add=False)
 
 class JudoSensor(SensorEntity):
     def __init__(self, api, name, method, unit):
@@ -30,7 +33,7 @@ class JudoSensor(SensorEntity):
         self._state = None
 
     async def async_update(self):
-    """Aktualisiert den Zustand des Sensors nur, wenn gültige Daten vorliegen."""
+        """Aktualisiert den Zustand des Sensors nur, wenn gültige Daten vorliegen."""
     try:
         result = None  # Initialisieren
 
@@ -66,7 +69,7 @@ class JudoSensor(SensorEntity):
     async def _get_betriebsstunden(self):
         data = await self._api.get_betriebsstunden()
         if data:
-            return f"{result['hours']}h {result['minutes']}m"
+            return f"{data['hours']}h {result['minutes']}m"
         return None
 
     async def _get_gesamtwassermenge(self):

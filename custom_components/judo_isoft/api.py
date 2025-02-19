@@ -1,5 +1,6 @@
 import aiohttp
 import asyncio
+import ssl
 import json
 import logging
 import async_timeout
@@ -13,7 +14,13 @@ class JudoAPI:
     def __init__(self, ip, username, password):
         self.base_url = f"https://{ip}/api/rest"
         self.auth = aiohttp.BasicAuth(username, password)
-        self.session = aiohttp.ClientSession(auth=self.auth)  # Wiederverwendbare Session
+        import ssl
+
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
+
+self.session = aiohttp.ClientSession(auth=self.auth, connector=aiohttp.TCPConnector(ssl=ssl_context))
 
         
 

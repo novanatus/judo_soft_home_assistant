@@ -30,32 +30,38 @@ class JudoSensor(SensorEntity):
         self._state = None
 
     async def async_update(self):
-        """Aktualisiert den Zustand des Sensors."""
-        try:
-            if self._method == "get_betriebsstunden":
-                data = await self._get_betriebsstunden()
-                result = data
-            elif self._method == "get_gesamtwassermenge":
-                result = await self._get_gesamtwassermenge()
-            elif self._method == "get_weichwassermenge":
-                result = await self._get_weichwassermenge()
-            elif self._method == "get_salzstand":
-                result = await self._get_salzstand()
-            elif self._method == "get_wasserhaerte":
-                result = await self._get_wasserhaerte()
-            elif self._method == "get_tagesstatistik":  # Hier wird tagesstatistik hinzugefügt
-                data = await self._get_tagesstatistik()  # Rufe die Methode für die Tagesstatistik auf    
-                result = data
-            else:
-                result = await getattr(self._api, self._method)()
+    """Aktualisiert den Zustand des Sensors nur, wenn gültige Daten vorliegen."""
+    try:
+        result = None  # Initialisieren
 
-            if result:
-                self._state = result
-            else:
-                self._state = "Keine Daten"
-        except Exception as e:
-            _LOGGER.error(f"Fehler beim Abrufen des Sensors {self._name}: {e}")
-            self._state = "Fehler"
+        if self._method == "get_betriebsstunden":
+            data = await self._get_betriebsstunden()
+            result = data if data else None
+        elif self._method == "get_gesamtwassermenge":
+            result = await self._get_gesamtwassermenge()
+        elif self._method == "get_weichwassermenge":
+            result = await self._get_weichwassermenge()
+        elif self._method == "get_salzstand":
+            result = await self._get_salzstand()
+        elif self._method == "get_wasserhaerte":
+            result = await self._get_wasserhaerte()
+        elif self._method == "get_tagesstatistik":
+            data = await self._get_tagesstatistik()
+            result = data if data else None
+        else:
+            result = await getattr(self._api, self._method)()
+
+        # Aktualisiere den Zustand nur, wenn wir gültige Daten haben
+        if result and result != "None":
+            self._state = result
+            _LOGGER.debug(f"Sensor {self._name} aktualisiert: {self._state}")
+        else:
+            _LOGGER.warning(f"Keine neuen Daten für {self._name}, bleibt auf {self._state}")
+
+    except Exception as e:
+        _LOGGER.error(f"Fehler beim Abrufen des Sensors {self._name}: {e}")
+        self._state = "Fehler"
+    
 
     async def _get_betriebsstunden(self):
         data = await self._api.get_betriebsstunden()

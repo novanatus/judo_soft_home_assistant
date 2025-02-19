@@ -11,7 +11,7 @@ _LOGGER = logging.getLogger(__name__)
 
 class JudoAPI:
     def __init__(self, ip, username, password):
-        self.base_url = f"http://{ip}/api/rest"
+        self.base_url = f"https://{ip}/api/rest"
         self.auth = aiohttp.BasicAuth(username, password)
         self.session = aiohttp.ClientSession(auth=self.auth)  # Wiederverwendbare Session
 

@@ -4,7 +4,7 @@ from .api import JudoAPI
 from .const import DOMAIN
 import logging
 
-SCAN_INTERVAL = timedelta(seconds=40)
+SCAN_INTERVAL = timedelta(seconds=300)
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -166,7 +166,7 @@ class JudoDataUpdateCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name="Judo API",
-            update_interval=timedelta(seconds=30),  # Alle 30 Sekunden abrufen
+            update_interval=timedelta(seconds=300),  # Alle 30 Sekunden abrufen
         )
 
     async def _async_update_data(self):
